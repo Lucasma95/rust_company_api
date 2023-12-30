@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: db_password
+      POSTGRES_DB: companies
+    ports:
+      - 5432:5432
+    container_name: local_postgres_for_rust
