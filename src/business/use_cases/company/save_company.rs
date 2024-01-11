@@ -10,7 +10,7 @@ pub struct SaveCompanyImpl;
 
 impl SaveCompanyImpl {
     pub fn new() -> SaveCompanyImpl {
-        SaveCompanyImpl{}
+        SaveCompanyImpl {}
     }
 }
 

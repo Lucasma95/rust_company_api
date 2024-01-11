@@ -20,11 +20,11 @@ pub async fn save(request: Json<CreateCompanyRequest>, usecase: Data<dyn SaveCom
 }
 
 #[get("/company/{id}")]
-pub async fn get_by_id(path: Path<String>, usecase: Data<dyn GetCompanyByID>) -> impl Responder {
+pub async fn get_by_id(path: Path<uuid::Uuid>, usecase: Data<dyn GetCompanyByID>) -> impl Responder {
 
     let company_id = path.into_inner();
 
-    let result = usecase.get_by_id(company_id).await;
+    let result = usecase.get_by_id(&company_id).await;
 
     match result {
         Ok(company) => {
@@ -38,11 +38,11 @@ pub async fn get_by_id(path: Path<String>, usecase: Data<dyn GetCompanyByID>) ->
 }
 
 #[get("/v2/company/{id}")]
-pub async fn get_by_id_v2(path: Path<String>, usecase: Data<dyn GetCompanyByID>) -> impl Responder {
+pub async fn get_by_id_v2(path: Path<uuid::Uuid>, usecase: Data<dyn GetCompanyByID>) -> impl Responder {
 
     let company_id = path.into_inner();
 
-    let result = usecase.get_by_id(company_id).await;
+    let result = usecase.get_by_id(&company_id).await;
 
     match result {
         Ok(company) => {

@@ -1,28 +1,25 @@
-use serde::{Serialize, Deserialize};
-use sqlx::FromRow;
-
-#[derive(Debug, FromRow, Serialize, Deserialize)]
-pub struct Company {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub country: String,
-}
-
-/*use serde::{Deserialize, Serialize};
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
-#[derive(Debug, FromRow, Deserialize, Serialize)]
-#[allow(non_snake_case)]
-pub struct NoteModel {
-    pub id: Uuid,
-    pub title: String,
-    pub content: String,
-    pub category: Option<String>,
-    pub published: Option<bool>,
-    #[serde(rename = "createdAt")]
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
-    #[serde(rename = "updatedAt")]
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
-}*/
+#[derive(Debug, FromRow, Serialize, Deserialize)]
+pub struct Company {
+    pub id: uuid::Uuid,
+    pub name: String,
+    pub description: String,
+    pub country: String,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+impl Company {
+    pub fn before_create(&mut self) {
+        self.id = Uuid::new_v4();
+        let now = Utc::now();
+        self.created_at = Some(now);
+        self.updated_at = Some(now);
+        self.deleted_at = None;
+    }
+}
