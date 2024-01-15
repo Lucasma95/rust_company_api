@@ -1,33 +1,29 @@
-pub mod http;
 pub mod business;
+pub mod http;
 pub mod repositories;
-use actix_web::{get, web::Data, App, HttpResponse, HttpServer, Responder};
-use dotenvy::dotenv;
-use sqlx::{postgres::PgPoolOptions};
-use std::{env, sync::Arc};
-use business::use_cases::company::save_company::SaveCompany;
+use actix_web::{web::Data, App, HttpServer};
+use business::use_cases::company::create_company::CreateCompany;
+use business::use_cases::company::get_companies_by_country::GetCompaniesByCountry;
 use business::use_cases::company::get_company_by_id::GetCompanyByID;
-
-
-#[get("/")]//probar pasarlo a /health
-async fn hello() -> impl Responder {
-    HttpResponse::Ok()
-}
+use business::use_cases::country::create_country::CreateCountry;
+use dotenvy::dotenv;
+use repositories::company_repository::CompanyRepository;
+use repositories::country_repository::CountryRepository;
+use sqlx::postgres::PgPoolOptions;
+use std::{env, sync::Arc};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
-    //env_logger::init();
     dotenv().ok();
     let port = define_port();
 
     print!("starting service at port: {}", port);
-    
+
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let pool = match PgPoolOptions::new()
         .max_connections(10)
         .connect(&database_url)
-        //.connect(&database_url)
         .await
     {
         Ok(pool) => {
@@ -40,24 +36,53 @@ async fn main() -> std::io::Result<()> {
         }
     };
 
+    //country infrastructure
+    let country_repo = repositories::country_repository::CountryRepositoryImpl::new(pool.clone());
+    let country_repo_arc = Arc::new(country_repo) as Arc<dyn CountryRepository>;
+
+    let create_country_usecase_impl =
+        business::use_cases::country::create_country::CreateCountryImpl::new(Arc::clone(
+            &country_repo_arc,
+        ));
+    let create_country_usecase_arc =
+        Arc::new(create_country_usecase_impl) as Arc<dyn CreateCountry>;
+
+    //company infrastructure
     let company_repo = repositories::company_repository::CompanyRepositoryImpl::new(pool.clone());
-    let company_repo_box = Box::new(company_repo);
+    let company_repo_arc = Arc::new(company_repo) as Arc<dyn CompanyRepository>;
 
-    let save_company_usecase_impl = business::use_cases::company::save_company::SaveCompanyImpl::new();
-    let save_usecase_arc = Arc::new(save_company_usecase_impl) as Arc<dyn SaveCompany>;
+    let create_company_usecase_impl =
+        business::use_cases::company::create_company::CreateCompanyImpl::new(Arc::clone(
+            &company_repo_arc,
+        ));
+    let create_company_usecase_arc =
+        Arc::new(create_company_usecase_impl) as Arc<dyn CreateCompany>;
 
-    let get_company_by_id_usecase_impl = business::use_cases::company::get_company_by_id::GetCompanyByIDImpl::new(company_repo_box);
-    let get_company_by_id_usecase_arc = Arc::new(get_company_by_id_usecase_impl) as Arc<dyn GetCompanyByID>;
+    let get_company_by_id_usecase_impl =
+        business::use_cases::company::get_company_by_id::GetCompanyByIDImpl::new(Arc::clone(
+            &company_repo_arc,
+        ));
+    let get_company_by_id_usecase_arc =
+        Arc::new(get_company_by_id_usecase_impl) as Arc<dyn GetCompanyByID>;
+
+    let get_companies_by_country_usecase_impl =
+        business::use_cases::company::get_companies_by_country::GetCompaniesByCountryImpl::new(
+            Arc::clone(&company_repo_arc),
+        );
+    let get_companies_by_country_usecase_arc =
+        Arc::new(get_companies_by_country_usecase_impl) as Arc<dyn GetCompaniesByCountry>;
 
     HttpServer::new(move || {
         App::new()
-            .service(hello)
-            .service(http::services::company::save)
-            .service(http::services::company::get_by_id)
             .service(http::services::health::get_basic_health_status)
-            .app_data(Data::from(save_usecase_arc.clone()))
+            .service(http::services::country::create)
+            .service(http::services::company::create)
+            .service(http::services::company::get_by_id)
+            .service(http::services::company::get_by_country_id)
+            .app_data(Data::from(create_country_usecase_arc.clone()))
+            .app_data(Data::from(create_company_usecase_arc.clone()))
             .app_data(Data::from(get_company_by_id_usecase_arc.clone()))
-            //.route("/echo", web::post().to(http::services::post_message::echo))
+            .app_data(Data::from(get_companies_by_country_usecase_arc.clone()))
     })
     .bind(("127.0.0.1", port))?
     .run()
@@ -70,17 +95,3 @@ fn define_port() -> u16 {
         .and_then(|port| port.parse().ok())
         .unwrap_or(8080)
 }
-
-/*fn define_port_long() -> u16 {
-    let port = env::var("PORT");
-    match port {
-        Ok(port) => {
-            let parsed_port: Result<u16, _> = port.parse();
-            match parsed_port {
-                Ok(value) => value,
-                Err(_) => 8080,
-            }
-        }
-        Err(_) => 8080,
-    }
-}*/

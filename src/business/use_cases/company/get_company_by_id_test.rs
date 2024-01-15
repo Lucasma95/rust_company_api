@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use crate::business::entities::company::Company;
     use crate::business::use_cases::company::get_company_by_id as usecase;
     use crate::business::use_cases::company::get_company_by_id::GetCompanyByID;
@@ -21,12 +23,12 @@ mod tests {
             .times(1)
             .returning(|company_id_mock| Ok(get_mock_company(&company_id_mock)));
 
-        let my_service = usecase::GetCompanyByIDImpl::new(Box::new(mock_company_repository));
+        let my_service = usecase::GetCompanyByIDImpl::new(Arc::new(mock_company_repository));
 
         let company = my_service.get_by_id(&company_id).await.unwrap();
 
         assert_eq!(company_expected.id, company.id);
-        assert_eq!(company_expected.country, company.country)
+        assert_eq!(company_expected.country_name, company.country_name)
     }
 
     #[actix_web::test]
@@ -45,7 +47,7 @@ mod tests {
                 )))
             });
 
-        let my_service = usecase::GetCompanyByIDImpl::new(Box::new(mock_provider));
+        let my_service = usecase::GetCompanyByIDImpl::new(Arc::new(mock_provider));
 
         let result = my_service.get_by_id(&company_id).await;
 
@@ -57,7 +59,7 @@ mod tests {
             id: *company_id,
             description: String::from("description"),
             name: String::from("name"),
-            country: String::from("ARG"),
+            country_name: String::from("Argentina"),
             created_at: Some(Utc::now()),
             updated_at: Some(Utc::now()),
             deleted_at: None,
