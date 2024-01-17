@@ -9,6 +9,7 @@ use business::use_cases::country::create_country::CreateCountry;
 use dotenvy::dotenv;
 use repositories::company_repository::CompanyRepository;
 use repositories::country_repository::CountryRepository;
+use sqlx;
 use sqlx::postgres::PgPoolOptions;
 use std::{env, sync::Arc};
 
@@ -35,6 +36,16 @@ async fn main() -> std::io::Result<()> {
             std::process::exit(1);
         }
     };
+    
+    let migration_result = sqlx::migrate!().run(&pool).await;
+    match migration_result {
+        Ok(()) => {
+            print!("migration finished successfully. ✅")
+        }
+        Err(error) => {
+            panic!("migration failed. [error]: {}", error.to_string())
+        }
+    }
 
     //country infrastructure
     let country_repo = repositories::country_repository::CountryRepositoryImpl::new(pool.clone());

@@ -1,8 +1,8 @@
 use crate::http::contracts::country::CreateCountryRequest;
 use serde::{Deserialize, Serialize};
-use sqlx::FromRow;
+use sqlx::{FromRow, Decode, Encode};
 
-#[derive(Debug, FromRow, Serialize, Deserialize)]
+#[derive(Debug, FromRow, Serialize, Deserialize, Decode, Encode)]
 pub struct Country {
     pub name: String,
     pub continent: String,
