@@ -5,6 +5,10 @@ use crate::business::entities::country as entities;
 use crate::http::contracts::country::CreateCountryRequest;
 use crate::repositories::country_repository::CountryRepository;
 
+#[cfg(test)]
+use mockall::{automock, predicate::*};
+
+#[cfg_attr(test, automock)]
 #[async_trait]
 pub trait CreateCountry: Send + Sync {
     async fn create(

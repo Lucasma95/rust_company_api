@@ -36,6 +36,12 @@ impl CountryRepository for CountryRepositoryImpl {
         .fetch_one(&self.db)
         .await;
 
+        if result.is_err() {
+            eprintln!(
+                "Error creating country. [country_name]: {} [country_continent]: {}",
+                country.name, country.continent
+            );
+        }
         return result;
     }
 }

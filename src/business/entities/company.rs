@@ -1,17 +1,20 @@
 use crate::http::contracts::company::CreateCompanyRequest;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, Decode, Encode};
+use sqlx::{Decode, Encode, FromRow};
 use uuid::Uuid;
 
-#[derive(Debug, FromRow, Serialize, Deserialize, Decode, Encode)]
+#[derive(Debug, FromRow, Serialize, Deserialize, Decode, Encode, PartialEq)]
 pub struct Company {
     pub id: uuid::Uuid,
     pub name: String,
     pub description: String,
     pub country_name: String,
+    #[sqlx(default)]
     pub created_at: Option<DateTime<Utc>>,
+    #[sqlx(default)]
     pub updated_at: Option<DateTime<Utc>>,
+    #[sqlx(default)]
     pub deleted_at: Option<DateTime<Utc>>,
 }
 

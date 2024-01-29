@@ -1,0 +1,69 @@
+{
+	"info": {
+		"_postman_id": "998cb7f0-8757-41a6-a740-d0c685c5d3da",
+		"name": "rust_company_api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6527604"
+	},
+	"item": [
+		{
+			"name": "get company by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http:///localhost:4003/api/v1/company/d0327d90-091d-40ea-bc4b-2072a03aaf62",
+					"protocol": "http",
+					"path": [
+						"localhost:4003",
+						"api",
+						"v1",
+						"company",
+						"d0327d90-091d-40ea-bc4b-2072a03aaf62"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get companies by country",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http:///localhost:4003/api/v1/company/country/Brasil",
+					"protocol": "http",
+					"path": [
+						"localhost:4003",
+						"api",
+						"v1",
+						"company",
+						"country",
+						"Brasil"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get companies by continent",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http:///localhost:4003/api/v1/company/continent/Europe",
+					"protocol": "http",
+					"path": [
+						"localhost:4003",
+						"api",
+						"v1",
+						"company",
+						"continent",
+						"Europe"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

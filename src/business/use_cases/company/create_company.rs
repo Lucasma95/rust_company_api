@@ -5,6 +5,10 @@ use crate::business::entities::company as entities;
 use crate::http::contracts::company::CreateCompanyRequest;
 use crate::repositories::company_repository::CompanyRepository;
 
+#[cfg(test)]
+use mockall::{automock, predicate::*};
+
+#[cfg_attr(test, automock)]
 #[async_trait]
 pub trait CreateCompany: Send + Sync {
     async fn create(

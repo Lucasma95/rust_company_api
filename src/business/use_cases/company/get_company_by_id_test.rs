@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod tests {
+mod get_companies_by_id_test {
     use std::sync::Arc;
 
     use crate::business::entities::company::Company;
@@ -11,7 +11,7 @@ mod tests {
     use sqlx::types::chrono::Utc;
 
     #[actix_web::test]
-    async fn test_get_company_from_repository_succesfully() {
+    async fn test_get_company_by_id_from_repository_succesfully() {
         let mut mock_company_repository = repo::MockCompanyRepository::new();
 
         let company_id = uuid::Uuid::new_v4();
@@ -23,16 +23,16 @@ mod tests {
             .times(1)
             .returning(|company_id_mock| Ok(get_mock_company(&company_id_mock)));
 
-        let my_service = usecase::GetCompanyByIDImpl::new(Arc::new(mock_company_repository));
+        let usecase = usecase::GetCompanyByIDImpl::new(Arc::new(mock_company_repository));
 
-        let company = my_service.get_by_id(&company_id).await.unwrap();
+        let company = usecase.get_by_id(&company_id).await.unwrap();
 
         assert_eq!(company_expected.id, company.id);
         assert_eq!(company_expected.country_name, company.country_name)
     }
 
     #[actix_web::test]
-    async fn test_get_company_from_repository_and_fails_because_random_error_on_repository() {
+    async fn test_get_company_by_id_from_repository_and_fails_because_random_error_on_repository() {
         let mut mock_provider = repo::MockCompanyRepository::new();
 
         let company_id = uuid::Uuid::new_v4();
@@ -47,9 +47,9 @@ mod tests {
                 )))
             });
 
-        let my_service = usecase::GetCompanyByIDImpl::new(Arc::new(mock_provider));
+        let usecase = usecase::GetCompanyByIDImpl::new(Arc::new(mock_provider));
 
-        let result = my_service.get_by_id(&company_id).await;
+        let result = usecase.get_by_id(&company_id).await;
 
         assert!(result.is_err());
     }

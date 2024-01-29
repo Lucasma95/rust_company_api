@@ -8,7 +8,7 @@ use serde_json::json;
 
 use crate::http::contracts::country::CreateCountryRequest;
 
-#[post("/v1/country")]
+#[post("/api/v1/country")]
 pub async fn create(
     request: Json<CreateCountryRequest>,
     usecase: Data<dyn CreateCountry>,

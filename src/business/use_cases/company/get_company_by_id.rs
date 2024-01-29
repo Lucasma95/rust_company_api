@@ -4,6 +4,10 @@ use crate::business::entities::company::Company;
 use crate::repositories::company_repository::CompanyRepository;
 use async_trait::async_trait;
 
+#[cfg(test)]
+use mockall::{automock, predicate::*};
+
+#[cfg_attr(test, automock)]
 #[async_trait]
 pub trait GetCompanyByID: Send + Sync {
     async fn get_by_id(&self, id: &uuid::Uuid) -> Result<Company, sqlx::Error>;

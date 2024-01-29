@@ -2,7 +2,7 @@ use crate::http::contracts::country::CreateCountryRequest;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, Decode, Encode};
 
-#[derive(Debug, FromRow, Serialize, Deserialize, Decode, Encode)]
+#[derive(Debug, FromRow, Serialize, Deserialize, Decode, Encode, Default, PartialEq)]
 pub struct Country {
     pub name: String,
     pub continent: String,

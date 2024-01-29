@@ -1,12 +1,14 @@
 use std::sync::Arc;
-
-use crate::business::entities::company::Company;
-use crate::repositories::company_repository::CompanyRepository;
+use crate::repositories::company_repository::{CompanyDto, CompanyRepository};
 use async_trait::async_trait;
 
+#[cfg(test)]
+use mockall::{automock, predicate::*};
+
+#[cfg_attr(test, automock)]
 #[async_trait]
 pub trait GetCompaniesByCountry: Send + Sync {
-    async fn get_by_country(&self, country_name: &str) -> Result<Vec<Company>, sqlx::Error>;
+    async fn get_by_country(&self, country_name: &str) -> Result<Vec<CompanyDto>, sqlx::Error>;
 }
 
 pub struct GetCompaniesByCountryImpl {
@@ -23,10 +25,10 @@ impl GetCompaniesByCountryImpl {
 
 #[async_trait]
 impl GetCompaniesByCountry for GetCompaniesByCountryImpl {
-    async fn get_by_country(&self, country_name: &str) -> Result<Vec<Company>, sqlx::Error> {
-        let company = self.repository.get_by_country(country_name).await;
-        match company {
-            Ok(company) => Ok(company),
+    async fn get_by_country(&self, country_name: &str) -> Result<Vec<CompanyDto>, sqlx::Error> {
+        let companies = self.repository.get_by_country(country_name).await;
+        match companies {
+            Ok(companies) => Ok(companies),
             Err(err) => Err(err), //it's possible to generate a custom error from the sqlx one.
         }
     }

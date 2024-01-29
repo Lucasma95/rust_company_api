@@ -13,6 +13,8 @@ use sqlx;
 use sqlx::postgres::PgPoolOptions;
 use std::{env, sync::Arc};
 
+use crate::business::use_cases::company::get_companies_by_continent::GetCompaniesByContinent;
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
@@ -83,17 +85,26 @@ async fn main() -> std::io::Result<()> {
     let get_companies_by_country_usecase_arc =
         Arc::new(get_companies_by_country_usecase_impl) as Arc<dyn GetCompaniesByCountry>;
 
+    let get_companies_by_continent_usecase_impl =
+        business::use_cases::company::get_companies_by_continent::GetCompaniesByContinentImpl::new(
+            Arc::clone(&company_repo_arc),
+        );
+    let get_companies_by_continent_usecase_arc =
+        Arc::new(get_companies_by_continent_usecase_impl) as Arc<dyn GetCompaniesByContinent>;
+
     HttpServer::new(move || {
         App::new()
             .service(http::services::health::get_basic_health_status)
             .service(http::services::country::create)
             .service(http::services::company::create)
             .service(http::services::company::get_by_id)
-            .service(http::services::company::get_by_country_id)
+            .service(http::services::company::get_by_country_name)
+            .service(http::services::company::get_by_continent)
             .app_data(Data::from(create_country_usecase_arc.clone()))
             .app_data(Data::from(create_company_usecase_arc.clone()))
             .app_data(Data::from(get_company_by_id_usecase_arc.clone()))
             .app_data(Data::from(get_companies_by_country_usecase_arc.clone()))
+            .app_data(Data::from(get_companies_by_continent_usecase_arc.clone()))
     })
     .bind(("127.0.0.1", port))?
     .run()
